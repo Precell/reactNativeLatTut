@@ -1,6 +1,15 @@
 import { StyleSheet } from "react-native";
-import { View, Text, TextInput, Button, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  ScrollView,
+  FlatList,
+  Pressable,
+} from "react-native";
 import { useState } from "react";
+import ApiCall from "./components/apicall";
 
 export default function App() {
   const [value, setValue] = useState("");
@@ -11,17 +20,27 @@ export default function App() {
   }
 
   function handleOnpressButton() {
-    console.log(value);
     setListOfNotes((currentNote) => [...currentNote, value]);
+    setValue("");
+  }
+
+  function handleRemoveItem(getCurrentIndex) {
+    console.log("item pressed here");
+    let cpyListOfNotes = [...listOfNotes];
+    cpyListOfNotes = cpyListOfNotes.filter(
+      (_, index) => getCurrentIndex !== index
+    );
+    setListOfNotes(cpyListOfNotes);
   }
 
   return (
-    <View style={{ padding: 60, paddingHorizontal:15, flex: 1, }}>
+    <View style={{ padding: 60, paddingHorizontal: 15, flex: 1 }}>
       <View style={styles.inputContainer}>
         <TextInput
           placeholder="Add your Note here"
           style={styles.input}
           onChangeText={handleOnchangeText}
+          value={value}
         />
         <Button color={"#000"} title="Add Note" onPress={handleOnpressButton} />
       </View>
@@ -29,13 +48,19 @@ export default function App() {
       {/* Show Notes */}
       <View style={styles.listContainer}>
         <Text>SHow List Here</Text>
-        <ScrollView>
-          {listOfNotes.map((item, index) => (
-            <Text key={`item${index}`} style={styles.listItem}>
-              {item}
-            </Text>
-          ))}
-        </ScrollView>
+        <FlatList
+          data={listOfNotes}
+          renderItem={(itemData) => (
+            <Pressable onPress={() => handleRemoveItem(itemData.index)}>
+              <Text style={styles.listItem}>{itemData.item}</Text>
+            </Pressable>
+          )}
+        />
+      </View>
+
+      {/*  API component*/}
+      <View style={styles.apiContainer}>
+        <ApiCall />
       </View>
     </View>
   );
@@ -51,11 +76,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
     width: 200,
-    flex:1
+    flex: 1,
   },
   listContainer: {
     paddingTop: 30,
-    flex:3
+    flex: 2,
   },
   listItem: {
     borderRadius: 1,
@@ -66,4 +91,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 20,
   },
+  apiContainer:{
+    flex:1
+  }
 });
